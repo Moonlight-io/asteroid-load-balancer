@@ -2,18 +2,10 @@ package main
 
 import (
 "net/http"
-"net/url"
-"net/http/httputil"
-"encoding/json"
-"fmt"
 "github.com/gorilla/mux"
 "math/rand"
 "time"
-
-"github.com/Moonlight-io/core-asteroid/server"
 )
-
-
 
 
 
@@ -41,14 +33,10 @@ func heartbeat(){
 	}
 }
 
-
-
-
 func proxy(w http.ResponseWriter, r *http.Request) {
 	n := topNodes[rand.Intn(len(topNodes))]
 	n.proxy.ServeHTTP(w,r)
 }
-
 
 func main() {
 
