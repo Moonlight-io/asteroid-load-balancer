@@ -12,4 +12,4 @@ RUN /var/www/asteroid-lb/install.sh
 
 EXPOSE 8080
 
-CMD ./run.sh
+CMD cd /var/www/asteroid-lb && ./run.sh
