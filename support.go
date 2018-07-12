@@ -13,6 +13,7 @@ type registrant struct {
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ok")
 	decoder := json.NewDecoder(r.Body)
 
 	var body registrant
@@ -27,7 +28,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 	ip, _ := url.Parse(body.Target)
 
-	newNode := node{target: ip, blockHeight: 0, state: "active", proxy: httputil.NewSingleHostReverseProxy(ip)}
+	newNode := node{target: ip, blockHeight: 0, state: "active", proxy: httputil.NewSingleHostReverseProxy(ip), count: 0}
 	newNode.blockHeight = getBlockHeight(newNode)
 	nodes = append(nodes, newNode)
 }
@@ -48,5 +49,3 @@ func deregister(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-
-

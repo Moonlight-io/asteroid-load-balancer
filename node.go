@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 	"bytes"
+	"fmt"
 	"net/url"
 	"net/http/httputil"
 )
@@ -14,6 +15,7 @@ type node struct {
 	blockHeight int
 	state string
 	proxy *httputil.ReverseProxy
+	count int
 }
 
 func getBlockHeight(Node node) int {
@@ -25,15 +27,22 @@ func getBlockHeight(Node node) int {
 
 	bodyBytes, _ := json.Marshal(body)
 
-	client := http.Client{Timeout: time.Duration(2 * time.Second)}
+	client := http.Client{Timeout: time.Duration(6 * time.Second)}
 
 	resp, err := client.Post(Node.target.String(), "application/json", bytes.NewBuffer(bodyBytes))
 	if nil != err {
+		fmt.Println(fmt.Sprintf("%s  : dead",Node.target))
+		fmt.Println(err)
 		return -1
 	}
 
 	var res map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&res)
 
+	if res == nil {
+		fmt.Println(fmt.Sprintf("%s  : dead 2",Node.target))
+		return -1
+	}
+	fmt.Println(fmt.Sprintf("%s  : %d",Node.target, int(res["result"].(float64))))
 	return int(res["result"].(float64))
 }
