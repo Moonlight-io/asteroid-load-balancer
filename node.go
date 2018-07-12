@@ -28,7 +28,7 @@ func getBlockHeight(Node node) int {
 	client := http.Client{Timeout: time.Duration(2 * time.Second)}
 
 	resp, err := client.Post(Node.target.String(), "application/json", bytes.NewBuffer(bodyBytes))
-	if nil != err {vi
+	if nil != err {
 		return -1
 	}
 
