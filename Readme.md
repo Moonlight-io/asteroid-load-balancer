@@ -23,7 +23,6 @@ The default implementation will register the City of Zion Nodes
 # Deployment
 ```sh
 git clone https://github.com/Moonlight-io/asteroid-load-balancer.git
-cd asteroid-load-balancer
-go build . && ./asteroid-load-balancer
+make build   
+make run
 ```
-

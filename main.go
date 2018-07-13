@@ -1,42 +1,47 @@
 package main
 
 import (
-	"net/http"
-	"net/http/httputil"
-	"github.com/gorilla/mux"
+	"log"
 	"math/rand"
-	"time"
+	"net/http"
 	"net/url"
+	"time"
+
+	"github.com/gorilla/mux"
 )
 
+const heartbeatInterval = 20 * time.Second
 
+var (
+	nodes    []*node
+	topNodes []*node
+)
 
-var nodes []node
-
-var topNodes []node
-
-func heartbeat(){
-
+func heartbeat() {
+	heartbeatTimer := time.NewTicker(heartbeatInterval)
 	for {
-		var newTopNodes []node
+		select {
+		case <-heartbeatTimer.C:
+			log.Println("polling nodes")
 
-		for index, n := range nodes {
-			nodes[index].blockHeight = getBlockHeight(n)
-			if (len(newTopNodes) == 0) || (nodes[index].blockHeight == newTopNodes[0].blockHeight){
-				newTopNodes = append(newTopNodes, nodes[index])
-			} else if nodes[index].blockHeight > newTopNodes[0].blockHeight {
-				newTopNodes = []node{nodes[index]}
-			}
+			var newTopNodes []*node
+			for index, n := range nodes {
+				nodes[index].getBlockHeight()
+				if (len(newTopNodes) == 0) || (nodes[index].blockHeight == newTopNodes[0].blockHeight) {
+					newTopNodes = append(newTopNodes, nodes[index])
+				} else if nodes[index].blockHeight > newTopNodes[0].blockHeight {
+					newTopNodes = []*node{nodes[index]}
+				}
 
-			for _, tn := range topNodes {
-				if tn.target == n.target{
-					nodes[index].count = nodes[index].count + tn.count
+				for _, tn := range topNodes {
+					if tn.target == n.target {
+						nodes[index].count = nodes[index].count + tn.count
+					}
 				}
 			}
+			topNodes = newTopNodes
+			time.Sleep(heartbeatInterval)
 		}
-		topNodes = newTopNodes
-
-		time.Sleep(20 * time.Second)
 	}
 }
 
@@ -44,23 +49,34 @@ func proxy(w http.ResponseWriter, r *http.Request) {
 	if len(topNodes) > 0 {
 		i := rand.Intn(len(topNodes))
 		topNodes[i].count = topNodes[i].count + 1
-		topNodes[i].proxy.ServeHTTP(w,r)
+		topNodes[i].proxy.ServeHTTP(w, r)
 	}
 }
 
 func main() {
-
-	rand.Seed(time.Now().Unix())
-
 	//define your seeds
-	seeds := [...]string{"http://seed1.cityofzion.io:8080", "http://seed2.cityofzion.io:8080", "http://seed3.cityofzion.io:8080", "http://seed4.cityofzion.io:8080", "http://pyrpc1.neeeo.org:10332"}
-	for _, n := range seeds {
-		ip, _ := url.Parse(n)
-		newNode := node{target: ip, blockHeight: 0, state: "active", proxy: httputil.NewSingleHostReverseProxy(ip), count: 0}
-		newNode.blockHeight = getBlockHeight(newNode)
-		nodes = append(nodes, newNode)
+	seeds := []string{
+		"http://seed1.cityofzion.io:8080",
+		"http://seed2.cityofzion.io:8080",
+		"http://seed3.cityofzion.io:8080",
+		"http://seed4.cityofzion.io:8080",
+		"http://pyrpc1.neeeo.org:10332",
 	}
 
+	nodes := make([]*node, len(seeds))
+	for i, n := range seeds {
+		ip, err := url.Parse(n)
+		if err != nil {
+			log.Fatal(err)
+		}
+		node := newNode(ip, 0)
+		if err := node.getBlockHeight(); err != nil {
+			log.Println(err)
+			// skipping bad nodes? Or should we add statusDead?
+			continue
+		}
+		nodes[i] = node
+	}
 
 	go heartbeat()
 
@@ -72,10 +88,15 @@ func main() {
 	r.HandleFunc("/", proxy)
 	http.Handle("/", r)
 
-	handler := http.TimeoutHandler(r, time.Second * 2, "Timeout!")
+	handler := http.TimeoutHandler(r, time.Second*2, "Timeout!")
 
 	if err := http.ListenAndServe(":8080", handler); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+}
 
+func init() {
+	rand.Seed(time.Now().Unix())
+	log.SetFlags(0)
+	log.SetPrefix("[asteroid] ")
 }
