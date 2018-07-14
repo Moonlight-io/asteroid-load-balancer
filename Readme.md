@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  A load balancer for asteroid full nodes
+  A load balancer for neo full nodes
 </p>
 
 # Overview
