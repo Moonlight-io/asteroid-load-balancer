@@ -21,6 +21,8 @@ The current platform is very simple and uses a polling method for tracking block
 
 The default deployment will register the City of Zion Nodes
 
+Note: Listening port is 8080
+
 <p align="center">
   <img
     src="fig1.svg"
