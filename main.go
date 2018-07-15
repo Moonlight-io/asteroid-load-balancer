@@ -17,38 +17,31 @@ var (
 	topNodes []*node
 )
 
-func heartbeat() {
-	heartbeatTimer := time.NewTicker(heartbeatInterval)
-	for {
-		select {
-		case <-heartbeatTimer.C:
-			log.Println("polling nodes")
+func beat() {
+	log.Println("polling nodes")
 
-			var newTopNodes []*node
-			for index, n := range nodes {
-				nodes[index].getBlockHeight()
-				if (len(newTopNodes) == 0) || (nodes[index].blockHeight == newTopNodes[0].blockHeight) {
-					newTopNodes = append(newTopNodes, nodes[index])
-				} else if nodes[index].blockHeight > newTopNodes[0].blockHeight {
-					newTopNodes = []*node{nodes[index]}
-				}
+	var newTopNodes []*node
+	for index, n := range nodes {
+		nodes[index].getBlockHeight()
+		if (len(newTopNodes) == 0) || (nodes[index].blockHeight == newTopNodes[0].blockHeight) {
+			newTopNodes = append(newTopNodes, nodes[index])
+		} else if nodes[index].blockHeight > newTopNodes[0].blockHeight {
+			newTopNodes = []*node{nodes[index]}
+		}
 
-				for _, tn := range topNodes {
-					if tn.target == n.target {
-						nodes[index].count = nodes[index].count + tn.count
-					}
-				}
+		for _, tn := range topNodes {
+			if tn.target == n.target {
+				nodes[index].count = nodes[index].count + tn.count
 			}
-			topNodes = newTopNodes
-			time.Sleep(heartbeatInterval)
 		}
 	}
+	topNodes = newTopNodes
 }
 
 func proxy(w http.ResponseWriter, r *http.Request) {
 	if len(topNodes) > 0 {
 		i := rand.Intn(len(topNodes))
-		topNodes[i].count = topNodes[i].count + 1
+		r.Host = topNodes[i].target.Hostname()
 		topNodes[i].proxy.ServeHTTP(w, r)
 	}
 }
@@ -63,22 +56,28 @@ func main() {
 		"http://pyrpc1.neeeo.org:10332",
 	}
 
-	nodes := make([]*node, len(seeds))
+	nodes = make([]*node, len(seeds))
 	for i, n := range seeds {
 		ip, err := url.Parse(n)
 		if err != nil {
 			log.Fatal(err)
 		}
 		node := newNode(ip, 0)
-		if err := node.getBlockHeight(); err != nil {
-			log.Println(err)
-			// skipping bad nodes? Or should we add statusDead?
-			continue
-		}
 		nodes[i] = node
 	}
 
-	go heartbeat()
+	//setup the node heartbeat
+	go func() {
+		beat()
+		heartbeatTimer := time.NewTicker(heartbeatInterval)
+		for {
+			select {
+			case <-heartbeatTimer.C:
+				beat()
+				time.Sleep(heartbeatInterval)
+			}
+		}
+	}()
 
 	r := mux.NewRouter()
 
