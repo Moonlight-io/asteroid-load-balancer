@@ -41,7 +41,14 @@ func beat() {
 func proxy(w http.ResponseWriter, r *http.Request) {
 	if len(topNodes) > 0 {
 		i := rand.Intn(len(topNodes))
+
+		//reset hostname and nuke cloudflare headers
 		r.Host = topNodes[i].target.Hostname()
+		r.Header.Del("cf-connecting-ip")
+		r.Header.Del("cf-visitor")
+		r.Header.Del("cf-ipcountry")
+		r.Header.Del("cf-ray")
+
 		topNodes[i].proxy.ServeHTTP(w, r)
 	}
 }
