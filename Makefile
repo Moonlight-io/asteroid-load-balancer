@@ -1,4 +1,4 @@
 build:
-	@go build -o bin/asteriod
+	@go build -o bin/asteroid
 run:
-	@./bin/asteriod
+	@./bin/asteroid
