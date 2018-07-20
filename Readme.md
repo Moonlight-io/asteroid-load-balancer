@@ -37,3 +37,6 @@ git clone https://github.com/Moonlight-io/asteroid-load-balancer.git
 make build   
 make run
 ```
+
+
+*Note:* If you are having issues with the number of connections, consider increasing your ulimit -n
