@@ -1,5 +1,5 @@
 # appveyor.yml
-build: false
+build: off
 
 # Source Config
 
