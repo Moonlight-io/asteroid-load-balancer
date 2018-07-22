@@ -12,7 +12,11 @@
 <p align="center">
   A load balancer for neo full nodes
 </p>
-
+<p align="center">
+  <a href="https://goreportcard.com/report/github.com/Moonlight-io/asteroid-load-balancer">
+    <img src="https://goreportcard.com/badge/github.com/Moonlight-io/asteroid-load-balancer">
+  </a>
+</p>
 # Overview
 
 Asteroid Load Balancer is a lightweight reverse proxy for neo full-nodes.  Currently, light applications need to manage node hopping to guarantee they are hitting a fully synched, available full-node.  This implementation provides an option for hitting a single server and allowing it to do the management and negotiation with full-nodes.
