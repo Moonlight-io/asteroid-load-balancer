@@ -16,6 +16,9 @@
   <a href="https://goreportcard.com/report/github.com/Moonlight-io/asteroid-load-balancer">
     <img src="https://goreportcard.com/badge/github.com/Moonlight-io/asteroid-load-balancer">
   </a>
+  <a href="https://ci.appveyor.com/project/lllwvlvwlll/asteroid-load-balancer">
+    <img src="https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true">
+  </a>
 </p>
 
 # Overview
