@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
-	"github.com/gorilla/mux"
 )
 
 const heartbeatInterval = 20 * time.Second
