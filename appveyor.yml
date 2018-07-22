@@ -1,0 +1,14 @@
+# appveyor.yml
+build: false
+
+# Source Config
+
+clone_folder: /usr/go/src/github.com/Moonlight-io/asteroid-load-balancer
+
+environment:
+  GOPATH: /usr/go/
+
+install:
+
+
+stack: go 1.10
