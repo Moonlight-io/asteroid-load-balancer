@@ -40,12 +40,28 @@ Note: Listening port is 8080
 </p>
 
 # Deployment
-```sh
 git clone https://github.com/Moonlight-io/asteroid-load-balancer.git
-make install
-make build   
+
+## Installing depencies
+```sh
+make deps
+```
+
+## Building Asteriod
+```sh
+make build
+```
+
+The asteriod binary will be avalable in the `bin` folder
+
+## Running Asteriod
+```sh
 make run
 ```
 
+Or invoke the binary directly:
+```sh
+./bin/asteriod
+```
 
 *Note:* If you are having issues with the number of connections, consider increasing your ulimit -n
