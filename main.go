@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Config holds the Asteriod configuration.
+// Config holds the Asteroid configuration.
 type Config struct {
 	// List of seeds that will be used to spread the load. Hence will be included
 	// in the polling algorithm.
@@ -21,32 +21,32 @@ type Config struct {
 	HeartbeatInterval time.Duration
 	// HTTP handler timeout
 	HTTPTimeout time.Duration
-	// Port Asteriod will listen on
+	// Port Asteroid will listen on
 	ListenAddr string
 }
 
-// Asteriod represents the main object that maintains a predefined list of
-// nodes. Every heartbeat interval Asteriod will poll its nodes to update their
-// status. Asteriod's HTTP endpoint is available on the ListenAddr defined in
+// Asteroid represents the main object that maintains a predefined list of
+// nodes. Every heartbeat interval Asteroid will poll its nodes to update their
+// status. Asteroid's HTTP endpoint is available on the ListenAddr defined in
 // the configuration.
-type Asteriod struct {
-	// Config holds the Asteriod configuration.
+type Asteroid struct {
+	// Config holds the Asteroid configuration.
 	Config
 
 	nodes    []*node
 	topNodes []*node
 }
 
-// newAsteriod constructs a new Asteriod object.
-func newAsteriod(cfg Config) *Asteriod {
-	return &Asteriod{
+// newAsteroid constructs a new Asteroid object.
+func newAsteroid(cfg Config) *Asteroid {
+	return &Asteroid{
 		Config: cfg,
 		nodes:  makeNodes(cfg.Seeds),
 	}
 }
 
 // Poll the known nodes and update their status.
-func (a *Asteriod) checkHeartbeat() {
+func (a *Asteroid) checkHeartbeat() {
 	for i, n := range a.nodes {
 		a.nodes[i].getBlockHeight()
 
@@ -65,7 +65,7 @@ func (a *Asteriod) checkHeartbeat() {
 	}
 }
 
-func (a *Asteriod) handleProxy(w http.ResponseWriter, r *http.Request) error {
+func (a *Asteroid) handleProxy(w http.ResponseWriter, r *http.Request) error {
 	if len(a.topNodes) == 0 {
 		return nil
 	}
@@ -84,7 +84,7 @@ func (a *Asteriod) handleProxy(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (a *Asteriod) handleRegister(w http.ResponseWriter, r *http.Request) error {
+func (a *Asteroid) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	var body registrant
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return err
@@ -106,7 +106,7 @@ func (a *Asteriod) handleRegister(w http.ResponseWriter, r *http.Request) error 
 	return nil
 }
 
-func (a *Asteriod) handleUnregister(w http.ResponseWriter, r *http.Request) error {
+func (a *Asteroid) handleUnregister(w http.ResponseWriter, r *http.Request) error {
 	var body registrant
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return err
@@ -124,7 +124,7 @@ func (a *Asteriod) handleUnregister(w http.ResponseWriter, r *http.Request) erro
 	return nil
 }
 
-func (a *Asteriod) serveHTTP() {
+func (a *Asteroid) serveHTTP() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", makeHTTPHandler(a.handleProxy))
 	r.HandleFunc("/register", makeHTTPHandler(a.handleRegister))
@@ -139,7 +139,7 @@ func (a *Asteriod) serveHTTP() {
 
 // loop starts the a loop which will check the status of the known nodes each
 // heartbeat interval.
-func (a *Asteriod) loop() {
+func (a *Asteroid) loop() {
 	hearbeatTimer := time.NewTimer(a.HeartbeatInterval)
 	for {
 		select {
@@ -151,7 +151,7 @@ func (a *Asteriod) loop() {
 	}
 }
 
-func (a *Asteriod) start() {
+func (a *Asteroid) start() {
 	// start the main loop in other routine.
 	go a.loop()
 	a.checkHeartbeat()
@@ -200,7 +200,7 @@ func main() {
 		},
 	}
 
-	newAsteriod(config).start()
+	newAsteroid(config).start()
 }
 
 func init() {
