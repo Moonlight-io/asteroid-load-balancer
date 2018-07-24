@@ -42,6 +42,7 @@ Note: Listening port is 8080
 # Deployment
 ```sh
 git clone https://github.com/Moonlight-io/asteroid-load-balancer.git
+make install
 make build   
 make run
 ```
