@@ -54,13 +54,18 @@ func proxy(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	//define your seeds
-	seeds := []string{
-		"http://seed1.cityofzion.io:8080",
-		"http://seed2.cityofzion.io:8080",
-		"http://seed3.cityofzion.io:8080",
-		"http://seed4.cityofzion.io:8080",
-		"http://pyrpc1.neeeo.org:10332",
-	}
+        seeds := []string{
+                "https://seed1.cityofzion.io:443",
+                "https://seed2.cityofzion.io:443",
+                "https://seed3.cityofzion.io:443",
+                "https://seed4.cityofzion.io:443",
+                "https://seed5.cityofzion.io:443",
+                "https://seed6.cityofzion.io:443",
+                "https://seed7.cityofzion.io:443",
+                "https://seed8.cityofzion.io:443",
+                "https://seed9.cityofzion.io:443",
+                "https://seed0.cityofzion.io:443",
+        }
 
 	nodes = make([]*node, len(seeds))
 	for i, n := range seeds {
